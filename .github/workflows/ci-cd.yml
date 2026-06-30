@@ -1,0 +1,46 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+      - dev-1
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # This condition stops the rest of the steps if the push is on dev-1
+    - name: Skip Build on Dev Branch
+      if: github.ref == 'refs/heads/dev-1'
+      run: |
+        echo "Running fast validation for dev-1 branch..."
+        echo "Validating workspace files..."
+        test -f Dockerfile && echo "Dockerfile exists."
+        echo "Validation successful! No image will be built or pushed for dev-1."
+
+    - name: Log in to Docker Hub
+      if: github.ref == 'refs/heads/main'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Set up Docker Buildx
+      if: github.ref == 'refs/heads/main'
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and Push Image
+      if: github.ref == 'refs/heads/main'
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          pyaephyomaung47/multi-page-app:latest
+          pyaephyomaung47/multi-page-app:${{ github.sha }}
+

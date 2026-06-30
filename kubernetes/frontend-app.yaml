@@ -2,23 +2,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment
-  labels:
-    app: frontend
 spec:
-  # Safe to scale horizontally because the frontend is stateless
   replicas: 2
   selector:
     matchLabels:
-      app: frontend
+      app: frontend-app
   template:
     metadata:
       labels:
-        app: frontend
+        app: frontend-app
     spec:
       containers:
-      - name: frontend-nginx
-        # Placeholder image tag; your GitHub Actions pipeline will build and overwrite this
-        image: YOUR_DOCKERHUB_USERNAME/multi-page-nginx:latest
+      - name: custom-frontend
+        image: pyaephyomaung47/multi-page-app:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
 ---
@@ -27,12 +24,11 @@ kind: Service
 metadata:
   name: frontend-service
 spec:
-  type: NodePort
   selector:
-    app: frontend
+    app: frontend-app
   ports:
-  - port: 80
-    targetPort: 80
-    # NodePort exposes the service outside the cluster on your Minikube node
-    nodePort: 30080
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
 
