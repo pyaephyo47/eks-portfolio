@@ -20,7 +20,6 @@ spec:
         ports:
         - containerPort: 5432
         env:
-        # Pull database config from the Secret we created in Step 4
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
@@ -36,6 +35,15 @@ spec:
             secretKeyRef:
               name: postgres-db-secret
               key: POSTGRES_PASSWORD
+        # --- NEW: Point Postgres to the mounted folder ---
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      # --- NEW: Define the volume using your PVC ---
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
 ---
 apiVersion: v1
 kind: Service

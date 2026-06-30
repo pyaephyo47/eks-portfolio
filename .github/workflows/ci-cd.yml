@@ -14,15 +14,20 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # This condition stops the rest of the steps if the push is on dev-1
+    # --- GATEWAY 1: Fast validation for local development pushes ---
     - name: Skip Build on Dev Branch
       if: github.ref == 'refs/heads/dev-1'
       run: |
         echo "Running fast validation for dev-1 branch..."
         echo "Validating workspace files..."
         test -f Dockerfile && echo "Dockerfile exists."
+        test -f kubernetes/secret.yaml && echo "Secret manifest exists."
+        test -f kubernetes/postgres-pvc.yaml && echo "PVC manifest exists."
+        test -f kubernetes/k8-app.yaml && echo "App manifest exists."
+        test -f kubernetes/frontend-app.yaml && echo "Frontend manifest exists."
         echo "Validation successful! No image will be built or pushed for dev-1."
 
+    # --- GATEWAY 2: Production builds exclusively on main pushes/merges ---
     - name: Log in to Docker Hub
       if: github.ref == 'refs/heads/main'
       uses: docker/login-action@v3
