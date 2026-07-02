@@ -19,6 +19,9 @@ spec:
         ports:
         - containerPort: 80
         # --- NEW: Production-grade Resource Allocations ---
+        envFrom:
+        - configMapRef:
+            name: frontend-config
         resources:
           requests:
             memory: "64Mi"   # Minikube guarantees 64 Megabytes of RAM

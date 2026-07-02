@@ -23,7 +23,8 @@ jobs:
         test -f Dockerfile && echo "Dockerfile exists."
         test -f kubernetes/secret.yaml && echo "Secret manifest exists."
         test -f kubernetes/postgres-pvc.yaml && echo "PVC manifest exists."
-        test -f kubernetes/k8-app.yaml && echo "App manifest exists."
+        test -f kubernetes/postgres-db.yaml && echo "App manifest exists."
+        test -f kubernetes/frontend-configmap.yaml && echo "ConfigMap manifest exists."
         test -f kubernetes/frontend-app.yaml && echo "Frontend manifest exists."
         echo "Validation successful! No image will be built or pushed for dev-1."
 
