@@ -24,7 +24,7 @@ resource "aws_iam_role" "github_actions" {
           }
           StringLike = {
             # STRICT GUARD: Only allows your specific repository to assume this role!
-            "://githubusercontent.com:sub" = "repo:pyaephyomaung47/eks-portfolio:*"
+            "://githubusercontent.com:sub" = "repo:pyaephyo47/eks-portfolio:*"
           }
         }
       }
