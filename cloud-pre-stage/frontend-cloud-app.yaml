@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend-app
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+      - name: custom-frontend
+        image: pyaephyomaung47/multi-page-app:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        # --- NEW: Production-grade Resource Allocations ---
+        envFrom:
+        - configMapRef:
+            name: frontend-config
+        resources:
+          requests:
+            memory: "64Mi"   # Minikube guarantees 64 Megabytes of RAM
+            cpu: "100m"      # Minikube guarantees 0.1 CPU cores (100 millicores)
+          limits:
+            memory: "128Mi"  # Hard cap at 128 Megabytes of RAM
+            cpu: "200m"      # Hard cap at 0.2 CPU cores (200 millicores)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
+

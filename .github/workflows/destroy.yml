@@ -1,0 +1,48 @@
+name: Manual Cloud Teardown
+
+on:
+  # This creates the manual click button inside your GitHub Actions browser dashboard
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  teardown:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Authenticate to AWS via OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::901816337753:role/github-actions-eks-deployer
+        aws-region: us-east-1
+
+    - name: Set up Terraform Software Binary
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Cleanly Purge Kubernetes Resources First
+      run: |
+        aws eks update-kubeconfig --region us-east-1 --name aws-portfolio-cluster
+        
+        # Deletes workloads first so AWS Cloud LoadBalancers detach cleanly before the network drops
+        kubectl delete -f cloud-pre-stage/cloud-frontend-configmap.yaml --ignore-not-found=true
+        kubectl delete -f cloud-pre-stage/cloud-secret.yaml --ignore-not-found=true
+        kubectl delete -f cloud-pre-stage/cloud-postgres-pvc.yaml --ignore-not-found=true
+        kubectl delete -f cloud-pre-stage/cloud-postgres-app.yaml --ignore-not-found=true
+        kubectl delete -f cloud-pre-stage/frontend-cloud-app.yaml --ignore-not-found=true
+        kubectl delete -f cloud-pre-stage/monitoring-manifests/cloud-prometheus.yaml --ignore-not-found=true
+        kubectl delete -f cloud-pre-stage/monitoring-manifests/cloud-grafana.yaml --ignore-not-found=true
+        
+        # Give AWS hardware 30 seconds to drop the physical routing lines safely
+        sleep 30
+
+    - name: Execute Automated Terraform Destroy
+      run: |
+        cd cloud-pre-stage/terraform
+        terraform init -reconfigure
+        terraform destroy --auto-approve
+

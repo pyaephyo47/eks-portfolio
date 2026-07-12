@@ -1,0 +1,67 @@
+name: Application Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main # Automatically runs on every routine code push to the main branch
+    paths-ignore:
+      - 'cloud-pre-stage/terraform/**' # Skips if you are only changing network configurations
+      - 'README.md'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code Repository
+      uses: actions/checkout@v4
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Push Fresh App Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          pyaephyomaung47/multi-page-app:${{ github.sha }}
+          pyaephyomaung47/multi-page-app:latest
+
+    - name: Authenticate to AWS via OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::901816337753:role/github-actions-eks-deployer
+        aws-region: us-east-1
+
+    - name: Link Context to Cluster
+      run: |
+        aws eks update-kubeconfig --region us-east-1 --name aws-portfolio-cluster
+
+    - name: Execute Live Application Rollout Updates
+      run: |
+        cd cloud-pre-stage
+        
+        # Re-verify baseline layers are matching
+        kubectl apply -f cloud-frontend-configmap.yaml
+        kubectl apply -f cloud-secret.yaml
+        kubectl apply -f cloud-postgres-pvc.yaml
+        kubectl apply -f cloud-postgres-app.yaml
+        
+        # Dynamically switch the manifest to use the brand new unique Git commit snapshot version image!
+        sed -i 's|image: pyaephyomaung47/multi-page-app:latest|image: pyaephyomaung47/multi-page-app:${{ github.sha }}|g' frontend-cloud-app.yaml
+        kubectl apply -f frontend-cloud-app.yaml
+
+    - name: Verify Live Cluster Telemetry Monitoring Is Active
+      run: |
+        cd cloud-pre-stage
+        kubectl apply -f monitoring-manifests/cloud-prometheus.yaml
+        kubectl apply -f monitoring-manifests/cloud-grafana.yaml
+
