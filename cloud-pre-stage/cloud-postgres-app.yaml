@@ -35,11 +35,16 @@ spec:
             secretKeyRef:
               name: postgres-db-secret
               key: POSTGRES_PASSWORD
-        # --- NEW: Point Postgres to the mounted folder ---
+        resources:
+          limits:
+            memory: "250Mi"
+            cpu: "200m"
+          requests:
+            memory: "150Mi"
+            cpu: "100m"
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
-      # --- NEW: Define the volume using your PVC ---
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:

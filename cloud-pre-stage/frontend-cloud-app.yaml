@@ -13,24 +13,21 @@ spec:
         app: frontend-app
     spec:
       containers:
-      - name: multi-page-app
+      - name: custom-frontend
         image: pyaephyomaung47/multi-page-app:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
-        volumeMounts:
-        - name: config-volume
-          mountPath: /etc/nginx/conf.d/status.conf
-          subPath: status.conf
-      - name: nginx-exporter
-        image: nginx/nginx-prometheus-exporter:latest
-        ports:
-        - containerPort: 9113
-        args:
-        - -nginx.scrape-uri=http://1
-      volumes:
-      - name: config-volume
-        configMap:
-          name: frontend-config
+        envFrom:
+        - configMapRef:
+            name: frontend-config
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
 ---
 apiVersion: v1
 kind: Service
@@ -40,11 +37,9 @@ spec:
   selector:
     app: frontend-app
   ports:
-  - name: http
-    port: 80
-    targetPort: 80
-  - name: metrics
-    port: 9113
-    targetPort: 9113
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  # 🚀 AWS LOADBALANCER: Commands Amazon to provision a public web address for your portfolio!
   type: LoadBalancer
 

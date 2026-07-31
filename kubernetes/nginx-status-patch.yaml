@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-status-config
+  namespace: default
+data:
+  default.conf: |
+    server {
+        listen 80;
+        server_name localhost;
+
+        # 📄 THE UNLOCKED PATH: Activates Nginx's internal traffic counters
+        location /nginx_status {
+            stub_status on;
+            access_log off;
+            allow 127.0.0.1;  # Allows the metrics sidecar to read data safely
+            deny all;         # Blocks outside internet users from reading stats
+        }
+
+        # Links straight to your multi-page app HTML pages from your Dockerfile
+        location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+            try_files $uri $uri/ /index.html;
+        }
+    }
+

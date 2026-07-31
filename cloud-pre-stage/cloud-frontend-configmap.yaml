@@ -2,17 +2,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: frontend-config
+  namespace: default
 data:
-  # This activates the hidden Nginx logs so the exporter can read them!
-  status.conf: |
-    server {
-        listen 80;
-        server_name localhost;
-        location /stub_status {
-            stub_status on;
-            access_log off;
-            allow 127.0.0.1;
-            deny all;
-        }
-    }
+  APP_ENV: "production-portfolio"
+  # 🚀 AWS RE-TAG: Updates your system variables to reflect your real AWS data center
+  CLUSTER_REGION: "aws-eks-us-east-1"
+  REPLICA_COUNT: "2"
 

@@ -18,17 +18,41 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 80
-        # --- NEW: Production-grade Resource Allocations ---
         envFrom:
         - configMapRef:
             name: frontend-config
         resources:
           requests:
-            memory: "64Mi"   # Minikube guarantees 64 Megabytes of RAM
-            cpu: "100m"      # Minikube guarantees 0.1 CPU cores (100 millicores)
+            memory: "64Mi"
+            cpu: "100m"
           limits:
-            memory: "128Mi"  # Hard cap at 128 Megabytes of RAM
-            cpu: "200m"      # Hard cap at 0.2 CPU cores (200 millicores)
+            memory: "128Mi"
+            cpu: "200m"
+        # 📂 MOUNT INJECTION: Drops the status file configuration into Nginx's active directory
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+      # 🔄 THE NGINX SIDECAR TRANSLATOR: Reads Nginx text rows and exposes metrics on port 9113
+      - name: nginx-exporter
+        image: nginx/nginx-prometheus-exporter:1.0.0
+        args:
+          - "-nginx.scrape-uri=http://127.0.0.1"
+        ports:
+        - containerPort: 9113
+          name: nginx-metrics
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+      # 🗄️ THE VOLUME SOURCE: Points to your configMap file asset
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-status-config
 ---
 apiVersion: v1
 kind: Service
@@ -38,8 +62,13 @@ spec:
   selector:
     app: frontend-app
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 80
+    - name: nginx-metrics
+      protocol: TCP
+      port: 9113
+      targetPort: 9113
   type: NodePort
 

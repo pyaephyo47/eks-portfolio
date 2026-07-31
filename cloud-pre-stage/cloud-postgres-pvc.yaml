@@ -1,46 +1,13 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgres-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres-app
-  template:
-    metadata:
-      labels:
-        app: postgres-app
-    spec:
-      containers:
-      - name: postgres
-        image: postgres:15
-        env:
-        - name: POSTGRES_USER
-          value: "myuser"
-        - name: POSTGRES_PASSWORD
-          value: "bXlwYXNzd29yZA==" # Your clean password secret
-        - name: POSTGRES_DB
-          value: "portfolio_db"
-        ports:
-        - containerPort: 5432
-        volumeMounts:
-        - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
-      volumes:
-      - name: postgres-storage
-        # FIX: Uses pure node RAM/Disk memory. Uses ZERO cluster add-on overhead!
-        emptyDir: {}
----
 apiVersion: v1
-kind: Service
+kind: PersistentVolumeClaim
 metadata:
-  name: postgres-service
+  name: postgres-pvc
 spec:
-  selector:
-    app: postgres-app
-  ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
+  accessModes:
+    - ReadWriteOnce
+  # 🚀 AWS LINK: Explicitly tells EKS to request an AWS EBS storage volume!
+  storageClassName: gp2
+  resources:
+    requests:
+      storage: 1Gi
 
