@@ -23,7 +23,7 @@ module "vpc" {
   single_nat_gateway = true
 }
 
-# 3. Launches the Elastic Kubernetes Service core engine (Supported for Version 1.30)
+# 3. Launches the Elastic Kubernetes Service core engine
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
@@ -44,7 +44,6 @@ module "eks" {
       desired_size = 3
 
       instance_types = ["t3.micro"]
-      ami_type       = "AL2023_x86_64"
     }
   }
 }
