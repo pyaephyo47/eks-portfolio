@@ -19,6 +19,7 @@ spec:
         image: postgres:15-alpine
         ports:
         - containerPort: 5432
+          name: postgres
         env:
         - name: POSTGRES_DB
           valueFrom:
@@ -45,6 +46,37 @@ spec:
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
+      # 🔄 THE SIDECAR TRANSLATOR: Reads DB logs and broadcasts metrics on port 9187
+      - name: postgres-exporter
+        image: prometheuscommunity/postgres-exporter:v0.15.0
+        env:
+        - name: PG_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-db-secret
+              key: POSTGRES_USER
+        - name: PG_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-db-secret
+              key: POSTGRES_DB
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-db-secret
+              key: POSTGRES_PASSWORD
+        - name: DATA_SOURCE_NAME
+          value: "postgresql://$(PG_USER):$(PG_PASSWORD)@127.0.0.1:5432/$(PG_DB)?sslmode=disable"
+        ports:
+        - containerPort: 9187
+          name: metrics
+        resources:
+          limits:
+            memory: "100Mi"
+            cpu: "100m"
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:
@@ -59,6 +91,10 @@ spec:
   selector:
     app: postgres
   ports:
-  - port: 5432
+  - name: database
+    port: 5432
     targetPort: 5432
+  - name: metrics
+    port: 9187
+    targetPort: 9187
 

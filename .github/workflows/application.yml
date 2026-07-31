@@ -3,9 +3,9 @@ name: Application Continuous Deployment
 on:
   push:
     branches:
-      - main # Automatically runs on every routine code push to the main branch
+      - main
     paths-ignore:
-      - 'cloud-pre-stage/terraform/**' # Skips if you are only changing network configurations
+      - 'cloud-pre-stage/terraform/**'
       - 'README.md'
 
 permissions:
@@ -59,9 +59,9 @@ jobs:
         sed -i 's|image: pyaephyomaung47/multi-page-app:latest|image: pyaephyomaung47/multi-page-app:${{ github.sha }}|g' frontend-cloud-app.yaml
         kubectl apply -f frontend-cloud-app.yaml
 
+    # 🚀 RE-ALIGNED TELEMETRY: Launches your consolidated 80MB Postgres sidecar monitoring stack cleanly
     - name: Verify Live Cluster Telemetry Monitoring Is Active
       run: |
         cd cloud-pre-stage
-        kubectl apply -f monitoring-manifests/cloud-prometheus.yaml
-        kubectl apply -f monitoring-manifests/cloud-grafana.yaml
+        kubectl apply -f cloud-monitoring.yaml
 

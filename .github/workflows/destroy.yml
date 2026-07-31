@@ -1,8 +1,7 @@
 name: Manual Cloud Teardown
 
 on:
-  # This creates the manual click button inside your GitHub Actions browser dashboard
-  workflow_dispatch:
+  workflow_dispatch
 
 permissions:
   id-token: write
@@ -34,8 +33,9 @@ jobs:
         kubectl delete -f cloud-pre-stage/cloud-postgres-pvc.yaml --ignore-not-found=true
         kubectl delete -f cloud-pre-stage/cloud-postgres-app.yaml --ignore-not-found=true
         kubectl delete -f cloud-pre-stage/frontend-cloud-app.yaml --ignore-not-found=true
-        kubectl delete -f cloud-pre-stage/monitoring-manifests/cloud-prometheus.yaml --ignore-not-found=true
-        kubectl delete -f cloud-pre-stage/monitoring-manifests/cloud-grafana.yaml --ignore-not-found=true
+        
+        # 🚀 CLEAN METRICS PURGE: Drops your custom telemetry routers smoothly
+        kubectl delete -f cloud-pre-stage/cloud-monitoring.yaml --ignore-not-found=true
         
         # Give AWS hardware 30 seconds to drop the physical routing lines safely
         sleep 30
