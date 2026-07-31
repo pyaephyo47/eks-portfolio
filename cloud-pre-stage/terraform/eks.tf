@@ -23,10 +23,11 @@ module "vpc" {
   single_nat_gateway = true
 }
 
-# 3. Launches the Elastic Kubernetes Service core engine
+# 3. Launches the Elastic Kubernetes Service core engine (Upgraded for Native 1.30 Support)
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.0"
+  # 🚀 VERSION UPGRADE: Upgrades the module to natively support AL2023 on EKS 1.30!
+  version = "~> 21.0"
 
   cluster_name    = "aws-portfolio-cluster"
   cluster_version = "1.30"
