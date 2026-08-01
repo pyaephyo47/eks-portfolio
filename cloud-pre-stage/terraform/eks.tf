@@ -30,7 +30,7 @@ module "eks" {
 
   name            = "aws-portfolio-cluster"
   # 🚀 SMART ZONE: Shifted to 1.31 to align with active cloud lifetimes!
-  cluster_version = "1.31"
+  version = "1.31"
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
