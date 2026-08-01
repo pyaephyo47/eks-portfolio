@@ -1,8 +1,11 @@
 terraform {
+  required_version = ">= 1.5.7"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      # 🚀 SYNCHRONIZED: Matches your exact registry research criteria!
+      version = ">= 6.52.0"
     }
   }
 }
