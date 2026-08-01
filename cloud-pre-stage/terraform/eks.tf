@@ -23,19 +23,22 @@ module "vpc" {
   single_nat_gateway = true
 }
 
-# 3. Launches the Elastic Kubernetes Service core engine (Precise v21.24.1 Parameters)
+# 3. Launches the Elastic Kubernetes Service core engine (Fully Operational v21.x Architecture)
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
-  name = "aws-portfolio-cluster"
-  
-  # 🚀 STATIC BYPASS FIX: Hardcodes the engine to version 1.31!
-  # This provides the value instantly to prevent the 'Invalid count argument' data crash.
+  name               = "aws-portfolio-cluster"
   kubernetes_version = "1.31"
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+
+  # 🚀 ACCESS FIX 1: Switches cluster auth to the modern EKS API mode
+  authentication_mode = "API"
+
+  # 🚀 ACCESS FIX 2: Grants full cluster admin rights to your IAM roles automatically
+  enable_cluster_creator_admin_permissions = true
 
   eks_managed_node_groups = {
     worker_nodes = {
@@ -44,6 +47,13 @@ module "eks" {
       desired_size = 3
 
       instance_types = ["t3.micro"]
+
+      # 🚀 POLICY FIX: Attaches the core network policies required for the t3.micro nodes to register
+      iam_role_additional_policies = {
+        AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        AmazonEKS_CNI_Policy               = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+        AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      }
     }
   }
 }
