@@ -23,14 +23,17 @@ module "vpc" {
   single_nat_gateway = true
 }
 
-# 3. Launches the Elastic Kubernetes Service core engine (Pure Default Architecture)
+# 3. Launches the Elastic Kubernetes Service core engine (Precise v21.24.1 Parameters)
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
   name = "aws-portfolio-cluster"
+  
+  # 🚀 STATIC BYPASS FIX: Hardcodes the engine to version 1.31!
+  # This provides the value instantly to prevent the 'Invalid count argument' data crash.
+  kubernetes_version = "1.31"
 
-  # 🚀 CLEAN STRATEGY: Removed the cluster_version line to let the module use its safe default!
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
