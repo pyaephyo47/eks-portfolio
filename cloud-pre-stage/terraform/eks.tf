@@ -23,20 +23,17 @@ module "vpc" {
   single_nat_gateway = true
 }
 
-# 3. Launches the Elastic Kubernetes Service core engine (Upgraded for Native 1.30 Support)
+# 3. Launches EKS core engine (Natively aligned to v21.0 and Version 1.31)
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  # 🚀 VERSION UPGRADE: Upgrades the module to natively support AL2023 on EKS 1.30!
   version = "~> 21.0"
 
-  cluster_name    = "aws-portfolio-cluster"
-  cluster_version = "1.30"
+  name            = "aws-portfolio-cluster"
+  # 🚀 SMART ZONE: Shifted to 1.31 to align with active cloud lifetimes!
+  cluster_version = "1.31"
 
-  cluster_endpoint_public_access = true
-
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
-  control_plane_subnet_ids = module.vpc.public_subnets
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
 
   eks_managed_node_groups = {
     worker_nodes = {
