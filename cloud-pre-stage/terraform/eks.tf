@@ -37,7 +37,6 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
 
   # Keeps non-free observability logging agents turned off
-  cluster_compute_config = {}
 
   eks_managed_node_groups = {
     worker_nodes = {
