@@ -1,4 +1,3 @@
-# 1. Links your cluster tracking file safely to your existing S3 Bucket
 terraform {
   backend "s3" {
     bucket         = "pyaephyo-terraform-state-bucket"
@@ -7,7 +6,6 @@ terraform {
   }
 }
 
-# 2. Creates your clean VPC cluster network infrastructure
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
@@ -19,11 +17,11 @@ module "vpc" {
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
 
+  # 🚀 LESSON APPLIED: Opens the outbound routing tunnel so private nodes can handshake
   enable_nat_gateway = true
   single_nat_gateway = true
 }
 
-# 3. Launches the Elastic Kubernetes Service core engine (Fully Operational v21.x Architecture)
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
@@ -34,21 +32,21 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  # 🚀 ACCESS FIX 1: Switches cluster auth to the modern EKS API mode
-  authentication_mode = "API"
-
-  # 🚀 ACCESS FIX 2: Grants full cluster admin rights to your IAM roles automatically
+  # 🚀 LESSON APPLIED: Activates modern API mode and auto-grants your user master admin rights
+  authentication_mode                      = "API"
   enable_cluster_creator_admin_permissions = true
+
+  # Keeps non-free observability logging agents turned off
+  cluster_compute_config = {}
 
   eks_managed_node_groups = {
     worker_nodes = {
       min_size     = 3
       max_size     = 3
       desired_size = 3
-
       instance_types = ["t3.micro"]
 
-      # 🚀 POLICY FIX: Attaches the core network policies required for the t3.micro nodes to register
+      # Attaches core network policies so worker instances can securely log into the cluster
       iam_role_additional_policies = {
         AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
         AmazonEKS_CNI_Policy               = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
