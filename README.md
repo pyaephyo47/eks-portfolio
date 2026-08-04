@@ -5,6 +5,7 @@ A production-ready, full-stack multi-page web application architecture deployed 
 This project demonstrates enterprise-grade container orchestration, infrastructure lifecycle management, secure credential tracking, and cloud cost-optimization strategies.
 
 ---
+---until
 aws-eks-portfolio-stack/
 ├── 🐋 GitHub Trigger & Automation
 │   └── Push semantic release tag (v3.x)
