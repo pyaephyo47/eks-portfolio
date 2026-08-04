@@ -7,50 +7,42 @@ This project demonstrates enterprise-grade container orchestration, infrastructu
 ---
 ## 🏗️ Architecture Blueprint
 
+## 🏗️ Architecture Blueprint
+
 ```mermaid
-graph TD
-    %% Define Styles and Colors
-    classDef git fill:#f05032,stroke:#333,stroke-width:2px,color:#fff;
-    classDef ghA fill:#2088ff,stroke:#333,stroke-width:2px,color:#fff;
-    classDef aws fill:#232F3E,stroke:#ff9900,stroke-width:2px,color:#fff;
-    classDef vpc fill:#111,stroke:#4ff,stroke-width:1px,stroke-dasharray: 5 5,color:#fff;
-    classDef subnet fill:#222,stroke:#ff9900,stroke-width:1px,color:#fff;
-    classDef pod fill:#326ce5,stroke:#fff,stroke-width:1px,color:#fff;
+graph LR
+    %% Core Theme Architecture Styling
+    classDef git fill:#E44D26,stroke:#222,stroke-width:1px,color:#fff;
+    classDef runner fill:#24292E,stroke:#222,stroke-width:1px,color:#fff;
+    classDef aws fill:#232F3E,stroke:#FF9900,stroke-width:1px,color:#fff;
+    classDef pod fill:#326CE5,stroke:#222,stroke-width:1px,color:#fff;
 
-    %% Elements
-    Git[GitHub Push v3.x Tag]:::git -->|Trigger Tag| Actions[GitHub Actions Runner]:::ghA
-    Actions -->|Terraform Apply| AWS:::aws
+    %% Workflow Pipeline Data Tracks
+    Tag[GitHub Push v3.x]:::git -->|Trigger| Pipeline[Actions Runner]:::runner
+    Pipeline -->|Deploy| Cluster_Core[AWS EKS Cluster]:::aws
 
-    subgraph AWS [Amazon Web Services Cloud]
-        State[S3 Remote State Vault]
+    %% Embedded System Cluster Components
+    subgraph Custom_VPC [Custom Portfolio VPC Topology]
+        direction LR
+        NAT[NAT Gateway Bridge] -->|Outbound Tunnel| Private_Subnet[Private Worker Subnet]
         
-        subgraph VPC [Custom Portfolio VPC Network]
-            Gateway[NAT Gateway Tunnel]
+        subgraph Private_Subnet [Private Worker Subnet Namespace]
+            direction TB
+            Nodes[t3.micro Node Pair] -->|Host| Pods[Application Pod Cluster]
             
-            subgraph Subnet [Isolated Private Subnet]
-                EKS[EKS Control Plane v1.31]
-                Node[t3.micro Compute Node Pair]
-                
-                subgraph Pods [Application Pod Cluster]
-                    Frontend[Frontend Web Pod]:::pod
-                    Backend[Python Backend Pod]:::pod
-                    DB[(PostgreSQL Stateful Pod)]:::pod
-                end
+            subgraph Pods [Application Pod Cluster]
+                direction LR
+                Web[Frontend Pod]:::pod
+                API[Backend Pod]:::pod
+                DB[(PostgreSQL)]:::pod
             end
         end
     end
 
-    %% Apply Classes
-    class AWS aws;
-    class VPC vpc;
-    class Subnet subnet;
-    
-    %% Connections inside AWS
-    State -.->|Sync State| EKS
-    Gateway ===>|Outbound Update Tunnel| Subnet
-    EKS -->|Manage| Node
-    Node -->|Orchestrate| Pods
+    %% Network Handshake Mapping Links
+    Cluster_Core -.->|Orchestrate| Nodes
 ```
+
 
 
 🔹 Infrastructure & Networking (Terraform)
