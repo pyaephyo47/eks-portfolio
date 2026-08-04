@@ -5,6 +5,7 @@ A production-ready, full-stack multi-page web application architecture deployed 
 This project demonstrates enterprise-grade container orchestration, infrastructure lifecycle management, secure credential tracking, and cloud cost-optimization strategies.
 
 ---
+## 🏗️ Architecture Blueprint
 ```utils
 aws-eks-portfolio-stack/
 ├── 🐋 GitHub Trigger & Automation
