@@ -5,46 +5,22 @@ A production-ready, full-stack multi-page web application architecture deployed 
 This project demonstrates enterprise-grade container orchestration, infrastructure lifecycle management, secure credential tracking, and cloud cost-optimization strategies.
 
 ---
-## 🏗️ Architecture Blueprint
+aws-eks-portfolio-stack/
+├── 🐋 GitHub Trigger & Automation
+│   └── Push semantic release tag (v3.x)
+│       └── Spawns GitHub Actions OpenID Connect Runner
+├── ☁️ Amazon Web Services (Control Core)
+│   ├── S3 Remote State Vault ............ Centralized encrypted .tfstate tracking
+│   └── EKS Cluster Engine v1.31 ......... Master control plane (API Auth Mode)
+└── 🌐 Custom Portfolio VPC Network Topology
+    ├── Public Subnets ................... Hosts outbound NAT Gateway Bridges
+    └── Private Subnets .................. Completely isolated execution layer
+        └── t3.micro Compute Worker Nodes (2 Desired Replicas)
+            ├── Frontend Web Pod ......... Dynamic multi-page Nginx container
+            ├── Python Backend Pod ....... Programmatic routing logic engine
+            └── PostgreSQL Database Pod .. Stateful storage node + PVC volume
 
-## 🏗️ Architecture Blueprint
-
-```mermaid
-graph LR
-    %% Core Theme Architecture Styling
-    classDef git fill:#E44D26,stroke:#222,stroke-width:1px,color:#fff;
-    classDef runner fill:#24292E,stroke:#222,stroke-width:1px,color:#fff;
-    classDef aws fill:#232F3E,stroke:#FF9900,stroke-width:1px,color:#fff;
-    classDef pod fill:#326CE5,stroke:#222,stroke-width:1px,color:#fff;
-
-    %% Workflow Pipeline Data Tracks
-    Tag[GitHub Push v3.x]:::git -->|Trigger| Pipeline[Actions Runner]:::runner
-    Pipeline -->|Deploy| Cluster_Core[AWS EKS Cluster]:::aws
-
-    %% Embedded System Cluster Components
-    subgraph Custom_VPC [Custom Portfolio VPC Topology]
-        direction LR
-        NAT[NAT Gateway Bridge] -->|Outbound Tunnel| Private_Subnet[Private Worker Subnet]
-        
-        subgraph Private_Subnet [Private Worker Subnet Namespace]
-            direction TB
-            Nodes[t3.micro Node Pair] -->|Host| Pods[Application Pod Cluster]
-            
-            subgraph Pods [Application Pod Cluster]
-                direction LR
-                Web[Frontend Pod]:::pod
-                API[Backend Pod]:::pod
-                DB[(PostgreSQL)]:::pod
-            end
-        end
-    end
-
-    %% Network Handshake Mapping Links
-    Cluster_Core -.->|Orchestrate| Nodes
-```
-
-
-
+---
 🔹 Infrastructure & Networking (Terraform)
 - Custom VPC Topography: Spawns isolated public and private subnets across multiple Availability Zones to ensure high availability and application resilience.
 - Secure Ingress Tunneling: Worker nodes are deployed completely within private subnets. Outbound communication for system updates is safely routed through an active NAT Gateway bridge.
