@@ -5,8 +5,53 @@ A production-ready, full-stack multi-page web application architecture deployed 
 This project demonstrates enterprise-grade container orchestration, infrastructure lifecycle management, secure credential tracking, and cloud cost-optimization strategies.
 
 ---
-```utils
-[GitHub Push (v3.x Tag)] ──> [GitHub Actions Runner]│ (Terraform Apply)▼┌─────────── AWS ───────────┐│  [S3 Remote State Vault]  ││                           ││  ┌───── Custom VPC ────┐  ││  │  [NAT Gateway Tunnel]│  ││  │         │           │  ││  │  ┌── Private Subnet ┐  │  ││  │  │   [EKS Control]  │  │  ││  │  │      (v1.31)     │  │  ││  │  │         │        │  │  ││  │  │   [t3.micro Node]│  │  ││  │  │   ├── Frontend   │  │  ││  │  │   ├── Backend    │  │  ││  │  │   └── PostgreSQL │  │  ││  │  └──────────────────┘  │  ││  └─────────────────────┘  │└───────────────────────────┘
+## 🏗️ Architecture Blueprint
+
+```mermaid
+graph TD
+    %% Define Styles and Colors
+    classDef git fill:#f05032,stroke:#333,stroke-width:2px,color:#fff;
+    classDef ghA fill:#2088ff,stroke:#333,stroke-width:2px,color:#fff;
+    classDef aws fill:#232F3E,stroke:#ff9900,stroke-width:2px,color:#fff;
+    classDef vpc fill:#111,stroke:#4ff,stroke-width:1px,stroke-dasharray: 5 5,color:#fff;
+    classDef subnet fill:#222,stroke:#ff9900,stroke-width:1px,color:#fff;
+    classDef pod fill:#326ce5,stroke:#fff,stroke-width:1px,color:#fff;
+
+    %% Elements
+    Git[GitHub Push v3.x Tag]:::git -->|Trigger Tag| Actions[GitHub Actions Runner]:::ghA
+    Actions -->|Terraform Apply| AWS:::aws
+
+    subgraph AWS [Amazon Web Services Cloud]
+        State[S3 Remote State Vault]
+        
+        subgraph VPC [Custom Portfolio VPC Network]
+            Gateway[NAT Gateway Tunnel]
+            
+            subgraph Subnet [Isolated Private Subnet]
+                EKS[EKS Control Plane v1.31]
+                Node[t3.micro Compute Node Pair]
+                
+                subgraph Pods [Application Pod Cluster]
+                    Frontend[Frontend Web Pod]:::pod
+                    Backend[Python Backend Pod]:::pod
+                    DB[(PostgreSQL Stateful Pod)]:::pod
+                end
+            end
+        end
+    end
+
+    %% Apply Classes
+    class AWS aws;
+    class VPC vpc;
+    class Subnet subnet;
+    
+    %% Connections inside AWS
+    State -.->|Sync State| EKS
+    Gateway ===>|Outbound Update Tunnel| Subnet
+    EKS -->|Manage| Node
+    Node -->|Orchestrate| Pods
+```
+
 
 🔹 Infrastructure & Networking (Terraform)
 - Custom VPC Topography: Spawns isolated public and private subnets across multiple Availability Zones to ensure high availability and application resilience.
