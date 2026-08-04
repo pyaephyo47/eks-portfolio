@@ -5,6 +5,7 @@ A production-ready, full-stack multi-page web application architecture deployed 
 This project demonstrates enterprise-grade container orchestration, infrastructure lifecycle management, secure credential tracking, and cloud cost-optimization strategies.
 
 ---
+[GitHub Push (v3.x Tag)] ──> [GitHub Actions Runner]│ (Terraform Apply)▼┌─────────── AWS ───────────┐│  [S3 Remote State Vault]  ││                           ││  ┌───── Custom VPC ────┐  ││  │  [NAT Gateway Tunnel]│  ││  │         │           │  ││  │  ┌── Private Subnet ┐  │  ││  │  │   [EKS Control]  │  │  ││  │  │      (v1.31)     │  │  ││  │  │         │        │  │  ││  │  │   [t3.micro Node]│  │  ││  │  │   ├── Frontend   │  │  ││  │  │   ├── Backend    │  │  ││  │  │   └── PostgreSQL │  │  ││  │  └──────────────────┘  │  ││  └─────────────────────┘  │└───────────────────────────┘
 
 🔹 Infrastructure & Networking (Terraform)
 - Custom VPC Topography: Spawns isolated public and private subnets across multiple Availability Zones to ensure high availability and application resilience.
